@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurador de Tokens MetaMask</title>
+    <style>
+        :root {
+            --primary: #f6851b;
+            --bg: #f4f7f6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .field {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 5px rgba(246, 133, 27, 0.2);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #e2761b;
+            transform: translateY(-1px);
+        }
+
+        .note {
+            font-size: 12px;
+            color: #888;
+            margin-top: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Importar Token</h2>
+
+        <div class="field">
+            <label for="contract">Dirección del Contrato:</label>
+            <input type="text" id="contract" placeholder="0x123...789">
+        </div>
+
+        <div class="field">
+            <label for="logo">URL de la Imagen (PNG/SVG):</label>
+            <input type="text" id="logo" placeholder="https://tuweb.com/token.png">
+        </div>
+
+        <div class="field">
+            <label for="symbol">Símbolo (Ej: BTC, MYTK):</label>
+            <input type="text" id="symbol" placeholder="MYTK">
+        </div>
+
+        <div class="field">
+            <label for="decimals">Decimales (Ej: 18):</label>
+            <input type="text" id="decimals" placeholder="18">
+        </div>
+
+        <button id="addBtn">🦊 Agregar a MetaMask</button>
+
+        <p class="note">Asegúrate de estar en la red correcta en MetaMask antes de pulsar el botón.</p>
+    </div>
+
+    <script>
+        document.getElementById('addBtn').addEventListener('click', async () => {
+            // Obtenemos los valores de los inputs en el momento del click
+            const address = document.getElementById('contract').value.trim();
+            const image = document.getElementById('logo').value.trim();
+            const symbol = document.getElementById('symbol').value.trim() || 'TOKEN';
+            const decimals = document.getElementById('decimals').value.trim() || '18';
+
+            // Verificación básica
+            if (!address.startsWith('0x')) {
+                alert('Por favor, introduce una dirección de contrato válida (debe empezar por 0x).');
+                return;
+            }
+
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const wasAdded = await window.ethereum.request({
+                        method: 'wallet_watchAsset',
+                        params: {
+                            type: 'ERC20',
+                            options: {
+                                address: address,
+                                symbol: symbol,
+                                decimals: parseInt(decimals),
+                                image: image,
+                            },
+                        },
+                    });
+
+                    if (wasAdded) {
+                        alert('¡Solicitud enviada con éxito!');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert('Error: ' + error.message);
+                }
+            } else {
+                alert('MetaMask no detectado. Revisa la consola (F12) para más detalles.');
+            }
+        });
+    </script>
+
+</body>
+
+</html>
